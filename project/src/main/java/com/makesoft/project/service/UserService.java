@@ -1,5 +1,6 @@
 package com.makesoft.project.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public Optional<User> findUser(Long Id) {
+    public Optional<User> findById(Long Id) {
         return userRepository.findById(Id);
     }
 
@@ -34,6 +35,24 @@ public class UserService {
         return userRepository.findByPhoneNumber(phone_number);
     }
 
-    
+    public void deleteByEmail(String email) {
+        userRepository.deleteByEmail(email);
+    }
+
+    public void deleteByPhoneNumber(String phone_number) {
+        userRepository.deleteByPhoneNumber(phone_number);
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public boolean existsByPhoneNumber(String phoneNumber) {
+        return userRepository.existsByPhoneNumber(phoneNumber);
+    }
 
 }
