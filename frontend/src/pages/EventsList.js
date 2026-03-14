@@ -102,9 +102,9 @@ export default function EventsList({ user }) {
                 <li key={ev.id} className="event-item">
                   <div className="event-item-header">
                     <Link to={`/events/${ev.id}`}>{ev.name || 'Unnamed event'}</Link>
-                    <span className="event-meta">{ev.category} · {ev.location}</span>
+                    <span className="event-meta">Category: {ev.category || '—'} · Location: {ev.location || '—'}</span>
                   </div>
-                  <div className="event-item-desc">{ev.description || '—'}</div>
+                  <div className="event-item-desc">Description: {ev.description || '—'}</div>
                   <div className="event-item-footer">
                     <span>{formatDate(ev.startDateTime)}</span>
                     <span>Status: {ev.status || '—'}</span>

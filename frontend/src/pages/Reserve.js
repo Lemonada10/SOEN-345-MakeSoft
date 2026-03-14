@@ -59,6 +59,20 @@ export default function Reserve({ user }) {
   if (!event) return <div className="form"><div className="form-card"><div className="helper">Loading…</div></div></div>;
 
   const maxQty = event.ticketRemaining != null && !isNaN(Number(event.ticketRemaining)) ? Math.max(0, Number(event.ticketRemaining)) : 99;
+  const noTicketsLeft = maxQty === 0;
+
+  if (noTicketsLeft) {
+    return (
+      <div className="form" style={{ maxWidth: 560 }}>
+        <div className="form-card">
+          <div className="form-title">Reserve: {event.name || 'Unnamed event'}</div>
+          <p className="helper">Tickets available: {event.ticketRemaining ?? '—'}</p>
+          <div className="events-error">There is not enough tickets for the quantity u chose.</div>
+          <div className="helper"><Link to={`/events/${id}`}>Back to event</Link></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="form" style={{ maxWidth: 560 }}>

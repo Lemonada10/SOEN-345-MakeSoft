@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getUserByEmail } from '../services/api';
+import { login } from '../services/api';
 
 export default function SignIn({ onSuccess, onSwitchMode }) {
   const [identifier, setIdentifier] = useState(''); // email or phone
@@ -12,11 +12,13 @@ export default function SignIn({ onSuccess, onSwitchMode }) {
     setError(null);
     setLoading(true);
     try {
-      // Look up user by email via backend (password check not yet implemented on backend)
-      const user = await getUserByEmail(identifier);
+      const user = await login(identifier, password);
       if (onSuccess) onSuccess({ identifier: user.email, id: user.id, email: user.email, role: user.role });
     } catch (err) {
-      setError(err.message || 'Failed to sign in');
+      const msg = err.message || 'Failed to sign in';
+      setError(msg === 'Failed to fetch'
+        ? 'Cannot connect to server. Make sure the backend is running (e.g. on http://localhost:8080).'
+        : msg);
     } finally {
       setLoading(false);
     }

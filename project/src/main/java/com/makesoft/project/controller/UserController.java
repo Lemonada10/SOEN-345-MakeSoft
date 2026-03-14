@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.makesoft.project.model.User;
@@ -20,8 +21,10 @@ import com.makesoft.project.service.UserService;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"})
 public class UserController {
+
+    private static final String INVALID_CREDENTIALS = "Invalid email or password";
 
     private final UserService userService;
 
@@ -36,6 +39,29 @@ public class UserController {
         public String phoneNumber;
         public String password;
         public String role; // e.g. "customer" or "instructor"
+    }
+
+    // DTO for login request (identifier = email or phone)
+    public static class LoginRequest {
+        public String identifier;
+        public String password;
+    }
+
+    // Response DTO without password
+    public static class LoginResponse {
+        public Long id;
+        public String name;
+        public String email;
+        public String phone_number;
+        public String role;
+
+        public LoginResponse(User u) {
+            this.id = u.getId();
+            this.name = u.getName();
+            this.email = u.getEmail();
+            this.phone_number = u.getPhone_number();
+            this.role = u.getRole();
+        }
     }
 
     @PostMapping("/register")
@@ -57,6 +83,26 @@ public class UserController {
         }
 
         return ResponseEntity.status(201).build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+        if (req.identifier == null || req.identifier.isBlank() || req.password == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(INVALID_CREDENTIALS);
+        }
+        Optional<User> userOpt = userService.findByEmail(req.identifier.trim());
+        if (!userOpt.isPresent()) {
+            userOpt = userService.findByPhoneNumber(req.identifier.trim());
+        }
+        if (!userOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(INVALID_CREDENTIALS);
+        }
+        User user = userOpt.get();
+        String stored = user.getPassword();
+        if (stored == null || !stored.equals(req.password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(INVALID_CREDENTIALS);
+        }
+        return ResponseEntity.ok(new LoginResponse(user));
     }
 
     @GetMapping

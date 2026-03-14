@@ -23,7 +23,7 @@ import com.makesoft.project.service.ReservationService;
 
 @RestController
 @RequestMapping("/api/reservations")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"})
 public class ReservationController {
 
     private final ReservationService reservationService;
@@ -64,6 +64,9 @@ public class ReservationController {
         if (ticketRemStr != null) {
             try {
                 int remaining = Integer.parseInt(ticketRemStr);
+                if (remaining <= 0) {
+                    return ResponseEntity.status(409).body("There is not even tickets for the quantity u chose.");
+                }
                 if (req.quantity > remaining) {
                     return ResponseEntity.status(409).body("Not enough tickets available");
                 }

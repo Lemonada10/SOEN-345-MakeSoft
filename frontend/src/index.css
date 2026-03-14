@@ -27,35 +27,72 @@ code {
     monospace;
 }
 
-.bg-lottie {
+/* Professional background: subtle gradient orbs */
+.bg-animation {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
-
-  display: flex;
-  /* <-- center the animation container */
-  align-items: center;
-  justify-content: center;
 }
 
-/* force the inner Lottie element to size by height and stay centered */
-.bg-lottie>div,
-.bg-lottie svg,
-.bg-lottie canvas {
-  margin: 0 auto;
-  width: auto !important;
-  height: 100vh !important;
-  max-width: none !important;
-  display: block;
-  object-fit: contain;
-  object-position: center center;
+.bg-animation-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.6;
+  animation: bg-orb-float 20s ease-in-out infinite;
+}
+
+.bg-animation-orb-1 {
+  width: 55vmax;
+  height: 55vmax;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.5) 0%, rgba(99, 102, 241, 0.15) 40%, transparent 70%);
+  top: -20%;
+  left: -15%;
+  animation-delay: 0s;
+}
+
+.bg-animation-orb-2 {
+  width: 50vmax;
+  height: 50vmax;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.45) 0%, rgba(59, 130, 246, 0.12) 40%, transparent 70%);
+  bottom: -20%;
+  right: -15%;
+  animation-delay: -7s;
+}
+
+.bg-animation-orb-3 {
+  width: 45vmax;
+  height: 45vmax;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, rgba(139, 92, 246, 0.08) 40%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: -14s;
+}
+
+@keyframes bg-orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(3%, -4%) scale(1.05); }
+  66% { transform: translate(-2%, 2%) scale(0.98); }
+}
+
+.bg-animation-orb-3 {
+  transform: translate(-50%, -50%);
+  animation-name: bg-orb-float-center;
+}
+
+@keyframes bg-orb-float-center {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  33% { transform: translate(calc(-50% + 2%), calc(-50% - 2%)) scale(1.03); }
+  66% { transform: translate(calc(-50% - 1%), calc(-50% + 1%)) scale(0.99); }
 }
 
 /* disable animation for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .bg-lottie {
-    opacity: 0.7;
+  .bg-animation-orb {
+    animation: none;
+    opacity: 0.25;
   }
 }

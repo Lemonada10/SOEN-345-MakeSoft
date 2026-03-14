@@ -77,6 +77,19 @@ export async function cancelReservation(id, token) {
   if (!res.ok) throw new Error(await res.text());
 }
 
+export async function login(identifier, password) {
+  const res = await fetch(`${API_BASE}/users/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier, password })
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(body || 'Failed to sign in');
+  }
+  return res.json();
+}
+
 export async function getUserByEmail(email) {
   const res = await fetch(`${API_BASE}/users/by-email?email=${encodeURIComponent(email)}`);
   if (!res.ok) throw new Error(await res.text());

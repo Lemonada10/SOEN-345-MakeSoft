@@ -1,6 +1,7 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import faviconIcon from './assets/airplane-ticket.png';
 import Background from './components/Background';
 import Welcome from './pages/Welcome';
 import SignIn from './components/SignIn';
@@ -24,6 +25,14 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const showBack = location.pathname !== '/';
+
+  useEffect(() => {
+    const link = document.querySelector('link[rel="icon"]');
+    if (link) {
+      link.href = faviconIcon;
+      link.type = 'image/png';
+    }
+  }, []);
 
   function handleAuthSuccess(authUser) {
     setUser(authUser);

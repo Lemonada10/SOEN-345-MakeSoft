@@ -33,8 +33,8 @@ export default function EventDetail({ user }) {
   return (
     <div className="form" style={{ maxWidth: 560 }}>
       <div className="form-card">
-        <div className="form-title">{event.name || 'Unnamed event'}</div>
-        <p className="helper">{event.description || '—'}</p>
+        <div className="form-title">Title: {event.name || 'Unnamed event'}</div>
+        <p className="helper">Description: {event.description || '—'}</p>
         <div className="event-detail-meta">
           <span>Location: {event.location || '—'}</span>
           <span>Category: {event.category || '—'}</span>
