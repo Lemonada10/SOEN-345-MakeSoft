@@ -9,3 +9,4 @@ Cloud-based Ticket Reservation Application
 - cd frontend
 - npm install
 - npm install lottie-react
+- npm start
