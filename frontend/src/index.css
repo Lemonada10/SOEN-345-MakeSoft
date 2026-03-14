@@ -1,3 +1,10 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +12,50 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* muted blue-grey background – less bright, matches UI */
+  background-color: #c8d1dc;
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(108, 156, 255, 0.12), transparent 50%),
+    radial-gradient(ellipse 80% 60% at 80% 100%, rgba(80, 107, 255, 0.06), transparent 45%),
+    linear-gradient(180deg, #d1d9e4 0%, #c5cedb 50%, #bac4d2 100%);
+  color: #1a202c;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.bg-lottie {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+
+  display: flex;
+  /* <-- center the animation container */
+  align-items: center;
+  justify-content: center;
+}
+
+/* force the inner Lottie element to size by height and stay centered */
+.bg-lottie>div,
+.bg-lottie svg,
+.bg-lottie canvas {
+  margin: 0 auto;
+  width: auto !important;
+  height: 100vh !important;
+  max-width: none !important;
+  display: block;
+  object-fit: contain;
+  object-position: center center;
+}
+
+/* disable animation for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .bg-lottie {
+    opacity: 0.7;
+  }
 }

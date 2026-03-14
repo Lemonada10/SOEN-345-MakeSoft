@@ -1,6 +1,7 @@
 package com.makesoft.project.service;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -27,4 +28,7 @@ public class ReservationService {
         reservationRepository.deleteById(reservation_id);
     }
 
+    public List<Reservation> findAll() {
+        return reservationRepository.findAll();
+    }
 }
