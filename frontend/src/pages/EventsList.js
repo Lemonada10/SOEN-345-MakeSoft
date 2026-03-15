@@ -23,7 +23,12 @@ export default function EventsList({ user }) {
   }
 
   useEffect(() => {
-    loadEvents();
+    setLoading(true);
+    setError(null);
+    getEvents({})
+      .then(setEvents)
+      .catch((err) => setError(err.message || 'Failed to load events'))
+      .finally(() => setLoading(false));
   }, []);
 
   function handleFilterSubmit(e) {
