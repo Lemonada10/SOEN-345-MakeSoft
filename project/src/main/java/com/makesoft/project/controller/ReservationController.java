@@ -23,7 +23,7 @@ import com.makesoft.project.service.ReservationService;
 
 @RestController
 @RequestMapping("/api/reservations")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"})
+@CrossOrigin(originPatterns = {"http://localhost:3000", "http://127.0.0.1:3000", "https://*.vercel.app"})
 public class ReservationController {
 
     private final ReservationService reservationService;

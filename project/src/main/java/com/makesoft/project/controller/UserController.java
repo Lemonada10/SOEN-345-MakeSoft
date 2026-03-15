@@ -21,7 +21,7 @@ import com.makesoft.project.service.UserService;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"})
+@CrossOrigin(originPatterns = {"http://localhost:3000", "http://127.0.0.1:3000", "https://*.vercel.app"})
 public class UserController {
 
     private static final String INVALID_CREDENTIALS = "Invalid email or password";

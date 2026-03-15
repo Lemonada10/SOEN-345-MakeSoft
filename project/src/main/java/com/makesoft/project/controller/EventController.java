@@ -22,7 +22,7 @@ import com.makesoft.project.service.EventService;
 
 @RestController
 @RequestMapping("/api/events")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"})
+@CrossOrigin(originPatterns = {"http://localhost:3000", "http://127.0.0.1:3000", "https://*.vercel.app"})
 public class EventController {
 
     private final EventService eventService;
