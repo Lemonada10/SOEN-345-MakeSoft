@@ -178,7 +178,7 @@ export default function AdminEvents({ user }) {
                       <div className="event-item-desc">{ev.description || '—'}</div>
                       <div className="event-item-footer">
                         <span>{formatDate(ev.startDateTime)}</span>
-                        <span>Status: {ev.status}</span>
+                        <span>Status: {(ev.ticketRemaining != null && String(ev.ticketRemaining).trim() === '0') ? 'FILLED' : ev.status}</span>
                         <span>Tickets: {ev.ticketRemaining ?? '—'}</span>
                         <button type="button" className="btn btn-ghost btn-sm" onClick={() => handleEdit(ev)}>Edit</button>
                         <button type="button" className="btn btn-ghost btn-sm" onClick={() => handleCancelEvent(ev.id)}>Cancel event</button>

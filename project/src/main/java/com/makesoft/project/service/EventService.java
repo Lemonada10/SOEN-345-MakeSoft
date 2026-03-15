@@ -40,6 +40,7 @@ public class EventService {
     }
 
     public void addEvent(Event event) {
+        if (isZeroTickets(event.getTicketRemaining())) event.setStatus("FILLED");
         eventRepository.save(event);
     }
 
@@ -55,11 +56,21 @@ public class EventService {
         event.setDescription(new_event.getDescription());
         event.setLocation(new_event.getLocation());
         event.setStartDateTime(new_event.getStartDateTime());
-        event.setStatus(new_event.getStatus());
         event.setTicketRemaining(new_event.getTicketRemaining());
         event.setCategory(new_event.getCategory());
+        if (isZeroTickets(event.getTicketRemaining())) event.setStatus("FILLED");
+        else event.setStatus(new_event.getStatus());
         eventRepository.save(event);
 
+    }
+
+    private static boolean isZeroTickets(String ticketRemaining) {
+        if (ticketRemaining == null || ticketRemaining.isBlank()) return false;
+        try {
+            return Integer.parseInt(ticketRemaining.trim()) == 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     public void cancelEvent(Long event_id) {

@@ -73,6 +73,7 @@ public class ReservationController {
                 // decrement and persist event remaining count
                 int newRemaining = remaining - req.quantity;
                 event.setTicketRemaining(String.valueOf(newRemaining));
+                if (newRemaining == 0) event.setStatus("FILLED");
                 eventRepository.save(event);
             } catch (NumberFormatException ex) {
                 // ticketRemaining not numeric; skip availability enforcement

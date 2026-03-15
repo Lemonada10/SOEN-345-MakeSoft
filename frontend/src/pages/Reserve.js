@@ -50,7 +50,7 @@ export default function Reserve({ user }) {
       <div className="form"><div className="form-card">
         <div className="form-title">Reservation confirmed</div>
         <p className="helper">Your reservation has been created. You can view it under My reservations.</p>
-        <p className="helper">A confirmation has been sent to your email/phone.</p>
+        {/* <p className="helper">A confirmation has been sent to your email/phone.</p> */}
         <Link to="/reservations" className="btn btn-primary">My reservations</Link>
         <Link to="/events" className="btn btn-ghost" style={{ marginLeft: 8 }}>Back to events</Link>
       </div></div>

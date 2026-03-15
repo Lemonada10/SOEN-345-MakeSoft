@@ -45,7 +45,7 @@ export default function MyReservations({ user }) {
     cancelReservation(reservationId)
       .then(() => {
         load();
-        setCancelMessage('A confirmation of cancellation has been sent to your email/phone.');
+        setCancelMessage('Reservation has been cancelled.');
       })
       .catch((err) => setError(err.message || 'Failed to cancel'));
   }

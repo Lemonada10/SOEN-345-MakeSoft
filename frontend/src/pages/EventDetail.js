@@ -30,6 +30,9 @@ export default function EventDetail({ user }) {
   if (error) return <div className="form"><div className="form-card"><div className="events-error">{error}</div><Link to="/events">Back to events</Link></div></div>;
   if (!event) return null;
 
+  const isFilled = event.ticketRemaining != null && String(event.ticketRemaining).trim() === '0';
+  const displayStatus = isFilled ? 'FILLED' : (event.status || '—');
+
   return (
     <div className="form" style={{ maxWidth: 560 }}>
       <div className="form-card">
@@ -39,7 +42,7 @@ export default function EventDetail({ user }) {
           <span>Location: {event.location || '—'}</span>
           <span>Category: {event.category || '—'}</span>
           <span>Date & time: {formatDate(event.startDateTime)}</span>
-          <span>Status: {event.status || '—'}</span>
+          <span>Status: {displayStatus}</span>
           <span>Tickets remaining: {event.ticketRemaining ?? '—'}</span>
         </div>
         <div className="form-actions" style={{ marginTop: 16 }}>
