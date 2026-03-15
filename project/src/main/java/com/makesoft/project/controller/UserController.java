@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.makesoft.project.model.User;
+import com.makesoft.project.service.NotificationService;
 import com.makesoft.project.service.UserService;
 
 @RestController
@@ -27,9 +28,11 @@ public class UserController {
     private static final String INVALID_CREDENTIALS = "Invalid email or password";
 
     private final UserService userService;
+    private final NotificationService notificationService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, NotificationService notificationService) {
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     // DTO for register request
@@ -78,6 +81,7 @@ public class UserController {
         Optional<User> created = userService.findByEmail(req.email);
         if (created.isPresent()) {
             User u = created.get();
+            notificationService.sendSignUpConfirmation(u, "email");
             URI location = URI.create("/api/users/" + u.getId());
             return ResponseEntity.created(location).body(u);
         }

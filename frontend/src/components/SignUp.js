@@ -14,7 +14,6 @@ export default function SignUp({ onSuccess, onSwitchMode }) {
     setError(null);
     setLoading(true);
     try {
-      // call backend register endpoint
       const name = email ? email.split('@')[0] : '';
       const payload = { name, email, phoneNumber: phone, password, role };
       const created = await registerUser(payload);
