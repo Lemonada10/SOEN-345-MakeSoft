@@ -2,6 +2,10 @@ package com.makesoft.project.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,13 +17,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.makesoft.project.model.Event;
+import com.makesoft.project.repository.EventRepository;
+
 @SpringBootTest(webEnvironment = org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApiIntegrationTest {
 
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private EventRepository eventRepository;
+
     private final RestTemplate restTemplate = new RestTemplate();
+
+    private static final Pattern JSON_ID = Pattern.compile("\"id\"\\s*:\\s*(\\d+)");
 
     @Test
     void login_andListEvents() {
@@ -38,5 +50,36 @@ class ApiIntegrationTest {
 
         ResponseEntity<String> events = restTemplate.getForEntity(base + "/events", String.class);
         assertThat(events.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void registerLoginReserve_fullCustomerFlow() {
+        String base = "http://localhost:" + port + "/api";
+        Date future = new Date(System.currentTimeMillis() + 14L * 24 * 60 * 60 * 1000);
+        Event ev = new Event("Integration Reserve Event", "d", "Venue", future, "AVAILABLE", "3", "integration");
+        eventRepository.save(ev);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        String email = "flow" + System.nanoTime() + "@test.com";
+        String registerBody = "{\"name\":\"Flow User\",\"email\":\"" + email + "\",\"phoneNumber\":\"\",\"password\":\"pass\",\"role\":\"customer\"}";
+        ResponseEntity<String> reg = restTemplate.postForEntity(base + "/users/register", new HttpEntity<>(registerBody, headers), String.class);
+        assertThat(reg.getStatusCode()).isIn(HttpStatus.CREATED, HttpStatus.valueOf(201));
+
+        String loginBody = "{\"identifier\":\"" + email + "\",\"password\":\"pass\"}";
+        ResponseEntity<String> login = restTemplate.postForEntity(base + "/users/login", new HttpEntity<>(loginBody, headers), String.class);
+        assertThat(login.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        Matcher idMatcher = JSON_ID.matcher(login.getBody());
+        assertThat(idMatcher.find()).isTrue();
+        long userId = Long.parseLong(idMatcher.group(1));
+
+        String resBody = "{\"userId\":" + userId + ",\"eventId\":" + ev.getId() + ",\"quantity\":1}";
+        ResponseEntity<String> reservation = restTemplate.postForEntity(base + "/reservations", new HttpEntity<>(resBody, headers), String.class);
+        assertThat(reservation.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        Event updated = eventRepository.findById(ev.getId()).orElseThrow();
+        assertThat(updated.getTicketRemaining()).isEqualTo("2");
     }
 }
