@@ -18,4 +18,4 @@ ENV PORT=8080
 EXPOSE $PORT
 
 # Render sets PORT; Spring Boot reads it via server.port=${PORT:8080}
-ENTRYPOINT ["sh", "-c", "java -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java -XX:+UseSerialGC -Xms128m -Xmx256m -jar app.jar"]

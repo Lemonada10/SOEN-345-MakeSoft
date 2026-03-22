@@ -17,7 +17,7 @@ async function fetchWithRetry(url, options = {}, retries = 2) {
 
 /** Sends a fire-and-forget ping to wake the backend on Render free tier. */
 export function wakeBackend() {
-  fetchWithRetry(`${API_BASE}/health`, {}, 0).catch(() => {});
+  fetchWithRetry(`${API_BASE}/events`, {}, 0).catch(() => {});
 }
 
 /** @param {{ date?: string, location?: string, category?: string, status?: string }} params */
