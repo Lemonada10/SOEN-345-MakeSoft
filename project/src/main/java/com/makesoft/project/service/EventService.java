@@ -19,24 +19,44 @@ public class EventService {
     }
 
     public List<Event> viewEvents() {
-        return eventRepository.findAll();
-
+        List<Event> events = eventRepository.findAll();
+        markPastEvents(events);
+        return events;
     }
 
     public List<Event> viewAvailableEvents() {
-        return eventRepository.findByStatus("AVAILABLE");
+        List<Event> events = eventRepository.findByStatus("AVAILABLE");
+        markPastEvents(events);
+        return events;
     }
 
     public List<Event> filterByDate(Date date) {
-        return eventRepository.findByStartDateTime(date);
+        List<Event> events = eventRepository.findByStartDateTime(date);
+        markPastEvents(events);
+        return events;
     }
 
     public List<Event> filterByLocation(String location) {
-        return eventRepository.findByLocation(location);
+        List<Event> events = eventRepository.findByLocation(location);
+        markPastEvents(events);
+        return events;
     }
 
     public List<Event> filterByCategory(String category) {
-        return eventRepository.findByCategory(category);
+        List<Event> events = eventRepository.findByCategory(category);
+        markPastEvents(events);
+        return events;
+    }
+
+    private void markPastEvents(List<Event> events) {
+        Date now = new Date();
+        for (Event e : events) {
+            if (e.getStartDateTime() != null && e.getStartDateTime().before(now)
+                    && !"PASSED".equals(e.getStatus())) {
+                e.setStatus("PASSED");
+                eventRepository.save(e);
+            }
+        }
     }
 
     public void addEvent(Event event) {

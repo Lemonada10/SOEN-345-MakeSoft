@@ -58,6 +58,19 @@ export default function Reserve({ user }) {
   }
   if (!event) return <div className="form"><div className="form-card"><div className="helper">Loading…</div></div></div>;
 
+  const isPassed = event.status === 'PASSED';
+  if (isPassed) {
+    return (
+      <div className="form" style={{ maxWidth: 560 }}>
+        <div className="form-card">
+          <div className="form-title">Reserve: {event.name || 'Unnamed event'}</div>
+          <div className="events-error">This event has already passed and cannot be reserved.</div>
+          <div className="helper"><Link to={`/events/${id}`}>Back to event</Link></div>
+        </div>
+      </div>
+    );
+  }
+
   const maxQty = event.ticketRemaining != null && !isNaN(Number(event.ticketRemaining)) ? Math.max(0, Number(event.ticketRemaining)) : 99;
   const noTicketsLeft = maxQty === 0;
 

@@ -59,6 +59,10 @@ public class ReservationController {
         User user = userOpt.get();
         Event event = eventOpt.get();
 
+        if (event.getStartDateTime() != null && event.getStartDateTime().before(new Date())) {
+            return ResponseEntity.status(409).body("Cannot reserve a past event");
+        }
+
         // Try to check ticket remaining if it's numeric. If not numeric or null, allow reservation.
         String ticketRemStr = event.getTicketRemaining();
         if (ticketRemStr != null) {

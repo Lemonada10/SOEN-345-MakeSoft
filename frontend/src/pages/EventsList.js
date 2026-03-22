@@ -112,9 +112,9 @@ export default function EventsList({ user }) {
                   <div className="event-item-desc">Description: {ev.description || '—'}</div>
                   <div className="event-item-footer">
                     <span>{formatDate(ev.startDateTime)}</span>
-                    <span>Status: {(ev.ticketRemaining != null && String(ev.ticketRemaining).trim() === '0') ? 'FILLED' : (ev.status || '—')}</span>
+                    <span>Status: {ev.status === 'PASSED' ? 'PASSED' : (ev.ticketRemaining != null && String(ev.ticketRemaining).trim() === '0') ? 'FILLED' : (ev.status || '—')}</span>
                     <span>Tickets: {ev.ticketRemaining ?? '—'}</span>
-                    {user && user.role !== 'admin' && user.role !== 'instructor' && (
+                    {user && user.role !== 'admin' && user.role !== 'instructor' && ev.status !== 'PASSED' && ev.status !== 'FILLED' && (
                       <Link to={`/events/${ev.id}/reserve`} className="btn btn-primary btn-sm">Reserve</Link>
                     )}
                   </div>

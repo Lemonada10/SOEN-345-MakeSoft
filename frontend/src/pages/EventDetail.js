@@ -30,8 +30,10 @@ export default function EventDetail({ user }) {
   if (error) return <div className="form"><div className="form-card"><div className="events-error">{error}</div><Link to="/events">Back to events</Link></div></div>;
   if (!event) return null;
 
+  const isPassed = event.status === 'PASSED';
   const isFilled = event.ticketRemaining != null && String(event.ticketRemaining).trim() === '0';
-  const displayStatus = isFilled ? 'FILLED' : (event.status || '—');
+  const displayStatus = isPassed ? 'PASSED' : isFilled ? 'FILLED' : (event.status || '—');
+  const canReserve = !isPassed && !isFilled;
 
   return (
     <div className="form" style={{ maxWidth: 560 }}>
@@ -47,7 +49,7 @@ export default function EventDetail({ user }) {
         </div>
         <div className="form-actions" style={{ marginTop: 16 }}>
           <Link to="/events" className="btn btn-ghost">Back to events</Link>
-          {user && user.role !== 'admin' && user.role !== 'instructor' && (
+          {user && user.role !== 'admin' && user.role !== 'instructor' && canReserve && (
             <Link to={`/events/${id}/reserve`} className="btn btn-primary">Reserve tickets</Link>
           )}
         </div>
