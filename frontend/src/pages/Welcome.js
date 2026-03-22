@@ -8,7 +8,7 @@ export default function Welcome({ onChoose, user, onLogout }) {
     <div className="form">
       <div className="form-card">
         <div className="form-title">Welcome to MakeSoft Reservations</div>
-        <p className="helper">Browse and reserve tickets for events such as concerts, sports, and shows. Register using your email or phone number, make reservations, and receive confirmations via email or SMS. Administrators can add, edit and cancel events.</p>
+        <p className="helper">Browse and reserve tickets for events such as concerts, sports, and shows. Register using your email or phone number and make reservations. Administrators can add, edit and cancel events.</p>
         <div className="welcome-actions">
           {!user ? (
             <>
