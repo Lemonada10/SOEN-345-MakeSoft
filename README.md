@@ -1,6 +1,10 @@
 # SOEN-345-MakeSoft
 Cloud-based Ticket Reservation Application
 
+## Documentation (report, architecture, testing)
+
+Course deliverables—**architecture, UML, requirements, testing strategy, methodology, rubric checklist**—are in **[`docs/`](docs/README.md)**. Start at [`docs/README.md`](docs/README.md).
+
 # run backend
 - cd project
 - mvn spring-boot:run
