@@ -17,7 +17,7 @@ export default function SignIn({ onSuccess, onSwitchMode }) {
     } catch (err) {
       const msg = err.message || 'Failed to sign in';
       setError(msg === 'Failed to fetch'
-        ? 'Cannot connect to server. Make sure the backend is running (e.g. on http://localhost:8080).'
+        ? 'Server is waking up, please try again in a few seconds.'
         : msg);
     } finally {
       setLoading(false);

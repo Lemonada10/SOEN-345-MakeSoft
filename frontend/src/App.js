@@ -2,6 +2,7 @@ import './App.css';
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import faviconIcon from './assets/airplane-ticket.png';
+import { wakeBackend } from './services/api';
 import Background from './components/Background';
 import Welcome from './pages/Welcome';
 import SignIn from './components/SignIn';
@@ -27,6 +28,7 @@ function App() {
   const showBack = location.pathname !== '/';
 
   useEffect(() => {
+    wakeBackend();
     const link = document.querySelector('link[rel="icon"]');
     if (link) {
       link.href = faviconIcon;

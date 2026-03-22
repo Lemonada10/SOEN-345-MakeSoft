@@ -20,7 +20,10 @@ export default function SignUp({ onSuccess, onSwitchMode }) {
       // call onSuccess with created user info
       if (onSuccess) onSuccess({ email: created.email, id: created.id, role: created.role });
     } catch (err) {
-      setError(err.message || 'Failed to sign up');
+      const msg = err.message || 'Failed to sign up';
+      setError(msg === 'Failed to fetch'
+        ? 'Server is waking up, please try again in a few seconds.'
+        : msg);
     } finally {
       setLoading(false);
     }
