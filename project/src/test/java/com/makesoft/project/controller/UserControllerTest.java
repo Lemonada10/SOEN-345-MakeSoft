@@ -67,4 +67,20 @@ class UserControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Invalid email or password"));
     }
+
+    @Test
+    void register_rejectsWhenEmailAlreadyExists() throws Exception {
+        String email = "dup@example.com";
+        String body = "{\"name\":\"Dup\",\"email\":\"" + email + "\",\"phoneNumber\":\"\",\"password\":\"mypass\",\"role\":\"customer\"}";
+        mockMvc.perform(post("/api/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+                .andExpect(status().isConflict())
+                .andExpect(content().string("user with that email already exists"));
+    }
 }

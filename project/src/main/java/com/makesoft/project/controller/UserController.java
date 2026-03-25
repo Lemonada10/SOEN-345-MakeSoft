@@ -75,6 +75,9 @@ public class UserController {
         if (userService.existsByEmail(req.email)) {
             return ResponseEntity.status(409).body("user with that email already exists");
         }
+        if (req.phoneNumber != null && !req.phoneNumber.isBlank() && userService.existsByPhoneNumber(req.phoneNumber)) {
+            return ResponseEntity.status(409).body("user with that phone number already exists");
+        }
 
         userService.registerUser(req.name, req.email, req.phoneNumber, req.password, req.role);
 

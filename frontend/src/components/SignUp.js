@@ -21,9 +21,12 @@ export default function SignUp({ onSuccess, onSwitchMode }) {
       if (onSuccess) onSuccess({ email: created.email, id: created.id, role: created.role });
     } catch (err) {
       const msg = err.message || 'Failed to sign up';
-      setError(msg === 'Failed to fetch'
-        ? 'Server is waking up, please try again in a few seconds.'
-        : msg);
+      const friendly = (msg && /already exists/i.test(msg))
+        ? 'User account already exists. Please sign in.'
+        : (msg === 'Failed to fetch'
+          ? 'Server is waking up, please try again in a few seconds.'
+          : msg);
+      setError(friendly);
     } finally {
       setLoading(false);
     }

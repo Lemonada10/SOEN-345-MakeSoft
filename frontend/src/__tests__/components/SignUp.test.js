@@ -39,3 +39,12 @@ test('SignUp calls registerUser and onSuccess with created user', async () => {
     );
   });
 });
+
+test('SignUp shows friendly message when account already exists', async () => {
+  registerUser.mockRejectedValueOnce(new Error('user with that email already exists'));
+  render(<SignUp onSuccess={jest.fn()} onSwitchMode={jest.fn()} />);
+  await userEvent.type(screen.getByLabelText(/email/i), 'dup@example.com');
+  await userEvent.type(screen.getByLabelText(/^password$/i), 'pw123');
+  await userEvent.click(screen.getByRole('button', { name: /sign up/i }));
+  expect(await screen.findByText(/User account already exists/i)).toBeInTheDocument();
+});
