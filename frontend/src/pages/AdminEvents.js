@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getEvents, createEvent, updateEvent, deleteEvent } from '../services/api';
+import { displayEventStatus } from '../utils/eventStatus';
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -46,7 +47,7 @@ export default function AdminEvents({ user }) {
   function load() {
     setLoading(true);
     setError(null);
-    getEvents()
+    getEvents({ includeDeleted: true })
       .then(setEvents)
       .catch((err) => setError(err.message || 'Failed to load events'))
       .finally(() => setLoading(false));
@@ -98,7 +99,11 @@ export default function AdminEvents({ user }) {
     setSubmitLoading(true);
     setError(null);
     const payload = {
-      ...editForm,
+      name: editForm.name,
+      description: editForm.description,
+      location: editForm.location,
+      category: editForm.category,
+      ticketRemaining: String(editForm.ticketRemaining),
       startDateTime: editForm.startDateTime ? new Date(editForm.startDateTime).toISOString() : null
     };
     updateEvent(editingId, payload)
@@ -112,7 +117,9 @@ export default function AdminEvents({ user }) {
   }
 
   function handleCancelEvent(id) {
-    if (!window.confirm('Cancel (delete) this event? This cannot be undone.')) return;
+    if (!window.confirm(
+      'Cancel this event? It will be marked as DELETED (hidden from the public events list). Customers with reservations will see that the event was cancelled.'
+    )) return;
     setError(null);
     deleteEvent(id)
       .then(load)
@@ -178,7 +185,7 @@ export default function AdminEvents({ user }) {
                       <div className="event-item-desc">{ev.description || '—'}</div>
                       <div className="event-item-footer">
                         <span>{formatDate(ev.startDateTime)}</span>
-                        <span>Status: {(ev.ticketRemaining != null && String(ev.ticketRemaining).trim() === '0') ? 'FILLED' : ev.status}</span>
+                        <span>Status: {displayEventStatus(ev)}</span>
                         <span>Tickets: {ev.ticketRemaining ?? '—'}</span>
                         <button type="button" className="btn btn-ghost btn-sm" onClick={() => handleEdit(ev)}>Edit</button>
                         <button type="button" className="btn btn-ghost btn-sm" onClick={() => handleCancelEvent(ev.id)}>Cancel event</button>

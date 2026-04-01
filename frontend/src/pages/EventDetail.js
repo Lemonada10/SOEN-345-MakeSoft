@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getEvent } from '../services/api';
+import { displayEventStatus, canCustomerReserve } from '../utils/eventStatus';
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -30,10 +31,8 @@ export default function EventDetail({ user }) {
   if (error) return <div className="form"><div className="form-card"><div className="events-error">{error}</div><Link to="/events">Back to events</Link></div></div>;
   if (!event) return null;
 
-  const isPassed = event.status === 'PASSED';
-  const isFilled = event.ticketRemaining != null && String(event.ticketRemaining).trim() === '0';
-  const displayStatus = isPassed ? 'PASSED' : isFilled ? 'FILLED' : (event.status || '—');
-  const canReserve = !isPassed && !isFilled;
+  const displayStatus = displayEventStatus(event);
+  const canReserve = canCustomerReserve(event);
 
   return (
     <div className="form" style={{ maxWidth: 560 }}>

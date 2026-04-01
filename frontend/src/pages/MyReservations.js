@@ -11,6 +11,10 @@ function formatDate(iso) {
   }
 }
 
+function isEventCancelled(reservation) {
+  return reservation.event && reservation.event.status === 'DELETED';
+}
+
 export default function MyReservations({ user }) {
   const navigate = useNavigate();
   const [reservations, setReservations] = useState([]);
@@ -53,12 +57,18 @@ export default function MyReservations({ user }) {
   if (!user) return null;
   if (user.role === 'admin' || user.role === 'instructor') return null;
   const myReservations = reservations.filter((r) => r.user && String(r.user.id) === String(user.id));
+  const hasCancelledEventReservation = myReservations.some(isEventCancelled);
 
   return (
     <div className="form" style={{ maxWidth: 720 }}>
       <div className="form-card">
         <div className="form-title">My reservations</div>
         <p className="helper">View and cancel your reservations.</p>
+        {hasCancelledEventReservation && (
+          <div className="events-error" role="alert" style={{ marginBottom: 12 }}>
+            One or more of your reservations are for events that were cancelled by the organizer. See details on each reservation below.
+          </div>
+        )}
         {error && <div className="events-error">{error}</div>}
         {cancelMessage && <div className="helper" style={{ color: 'green' }}>{cancelMessage}</div>}
         {loading && <div className="helper">Loading…</div>}
@@ -72,10 +82,20 @@ export default function MyReservations({ user }) {
                   <div className="event-item-header">
                     <span>{r.event ? r.event.name : 'Event'} · Qty: {r.quantity}</span>
                   </div>
+                  {isEventCancelled(r) && (
+                    <div
+                      className="events-error"
+                      role="status"
+                      style={{ margin: '8px 0', padding: '10px 12px', borderRadius: 8 }}
+                    >
+                      This event was cancelled by the organizer. This reservation is no longer valid for attending the event.
+                    </div>
+                  )}
                   <div className="event-item-footer">
                     <span>Reserved: {formatDate(r.reservationDateTime)}</span>
-                    <span>Status: {r.status || '—'}</span>
-                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => handleCancel(r.reservation_id)}>Cancel</button>
+                    {isEventCancelled(r) && <span>Event: DELETED</span>}
+                    <span>Reservation status: {r.status || '—'}</span>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => handleCancel(r.reservation_id)}>Cancel reservation</button>
                   </div>
                 </li>
               ))

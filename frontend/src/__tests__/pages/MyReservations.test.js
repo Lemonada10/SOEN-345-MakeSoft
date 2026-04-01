@@ -51,3 +51,24 @@ test('shows empty helper when user has no matching reservations', async () => {
   );
   expect(await screen.findByText(/No reservations yet/i)).toBeInTheDocument();
 });
+
+test('shows cancelled event message when event status is DELETED', async () => {
+  getReservations.mockResolvedValue([
+    {
+      reservation_id: 200,
+      quantity: 1,
+      status: 'CONFIRMED',
+      reservationDateTime: '2026-01-15T18:00:00.000Z',
+      user: { id: 5 },
+      event: { name: 'Cancelled Show', status: 'DELETED' },
+    },
+  ]);
+  render(
+    <MemoryRouter>
+      <MyReservations user={{ id: 5, role: 'customer' }} />
+    </MemoryRouter>
+  );
+  expect(await screen.findByText(/Cancelled Show/i)).toBeInTheDocument();
+  expect(screen.getByText(/Event: DELETED/i)).toBeInTheDocument();
+  expect(screen.getByRole('alert')).toBeInTheDocument();
+});

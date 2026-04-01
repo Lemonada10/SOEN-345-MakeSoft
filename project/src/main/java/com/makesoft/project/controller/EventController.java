@@ -31,69 +31,65 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    // GET /api/events?date=...&location=...&category=...&status=...
     @GetMapping
     public List<Event> listEvents(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date date,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) String status) {
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false, defaultValue = "false") boolean includeDeleted) {
 
         if (date != null) {
-            return eventService.filterByDate(date);
+            return eventService.filterByDate(date, includeDeleted);
         }
         if (location != null && !location.isBlank()) {
-            return eventService.filterByLocation(location);
+            return eventService.filterByLocation(location, includeDeleted);
         }
         if (category != null && !category.isBlank()) {
-            return eventService.filterByCategory(category);
+            return eventService.filterByCategory(category, includeDeleted);
         }
         if (status != null && status.equalsIgnoreCase("AVAILABLE")) {
-            return eventService.viewAvailableEvents();
+            return eventService.viewAvailableEvents(includeDeleted);
         }
-        return eventService.viewEvents();
+        return eventService.viewEvents(includeDeleted);
     }
 
     @GetMapping("/available")
-    public List<Event> listAvailable() {
-        return eventService.viewAvailableEvents();
+    public List<Event> listAvailable(
+            @RequestParam(required = false, defaultValue = "false") boolean includeDeleted) {
+        return eventService.viewAvailableEvents(includeDeleted);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Event> getEvent(@PathVariable Long id) {
-        return eventService.viewEvents().stream()
-                .filter(e -> e.getId() != null && e.getId().equals(id))
-                .findFirst()
+        return eventService.getPublicEventById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<Event> createEvent(@RequestBody Event event) {
-        // delegate creation to service; service saves the entity
         eventService.addEvent(event);
-        // return 201 Created with Location header (event id should be populated by JPA save)
         URI location = URI.create("/api/events/" + (event.getId() != null ? event.getId() : ""));
         return ResponseEntity.created(location).body(event);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(@PathVariable Long id, @RequestBody Event event) {
-        boolean exists = eventService.viewEvents().stream()
-                .anyMatch(e -> e.getId() != null && e.getId().equals(id));
-        if (!exists) {
+        if (!eventService.eventExists(id)) {
             return ResponseEntity.notFound().build();
         }
 
-        eventService.modifyEvent(id, event);
-        return ResponseEntity.ok(event);
+        Event updated = eventService.modifyEvent(id, event);
+        if (updated == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
-        boolean exists = eventService.viewEvents().stream()
-                .anyMatch(e -> e.getId() != null && e.getId().equals(id));
-        if (!exists) {
+        if (!eventService.eventExists(id)) {
             return ResponseEntity.notFound().build();
         }
 

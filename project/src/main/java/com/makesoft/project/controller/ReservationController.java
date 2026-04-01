@@ -59,6 +59,10 @@ public class ReservationController {
         User user = userOpt.get();
         Event event = eventOpt.get();
 
+        if ("DELETED".equals(event.getStatus())) {
+            return ResponseEntity.status(409).body("This event has been cancelled by the organizer");
+        }
+
         if (event.getStartDateTime() != null && event.getStartDateTime().before(new Date())) {
             return ResponseEntity.status(409).body("Cannot reserve a past event");
         }

@@ -9,7 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.makesoft.project.model.Event;
+import com.makesoft.project.model.Reservation;
+import com.makesoft.project.model.User;
 import com.makesoft.project.repository.EventRepository;
+import com.makesoft.project.repository.ReservationRepository;
+import com.makesoft.project.repository.UserRepository;
 
 @SpringBootTest
 class EventServiceTest {
@@ -19,6 +23,12 @@ class EventServiceTest {
 
     @Autowired
     private EventRepository eventRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     private static Date daysFromNow(int days) {
         return new Date(System.currentTimeMillis() + days * 24L * 60 * 60 * 1000);
@@ -59,5 +69,46 @@ class EventServiceTest {
         assertThat(e.getId()).isNotNull();
         Event saved = eventRepository.findById(e.getId()).orElseThrow();
         assertThat(saved.getStatus()).isEqualTo("FILLED");
+    }
+
+    @Test
+    void cancelEvent_setsDeletedAndKeepsRow() {
+        Event ev = new Event("To Cancel", "d", "loc", daysFromNow(5), "AVAILABLE", "10", "music");
+        eventRepository.save(ev);
+        Long id = ev.getId();
+
+        eventService.cancelEvent(id);
+
+        Event reloaded = eventRepository.findById(id).orElseThrow();
+        assertThat(reloaded.getStatus()).isEqualTo("DELETED");
+    }
+
+    @Test
+    void cancelEvent_withReservation_keepsRowAndSetsDeleted() {
+        Event ev = new Event("Booked", "d", "loc", daysFromNow(5), "AVAILABLE", "10", "music");
+        eventRepository.save(ev);
+        User u = new User("Cust", "c@x.com", "", "pw", "customer");
+        userRepository.save(u);
+        Reservation r = new Reservation(u, ev, 1, "CONFIRMED", new Date());
+        reservationRepository.save(r);
+        Long id = ev.getId();
+
+        eventService.cancelEvent(id);
+
+        Event reloaded = eventRepository.findById(id).orElseThrow();
+        assertThat(reloaded.getStatus()).isEqualTo("DELETED");
+        assertThat(reservationRepository.findById(r.getReservation_id())).isPresent();
+    }
+
+    @Test
+    void viewEvents_excludesDeletedByDefault() {
+        Event active = new Event("Active", "d", "loc", daysFromNow(3), "AVAILABLE", "5", "music");
+        eventRepository.save(active);
+        Event deleted = new Event("Gone", "d", "loc", daysFromNow(3), "DELETED", "5", "music");
+        eventRepository.save(deleted);
+
+        assertThat(eventService.viewEvents(false).stream().map(Event::getId))
+                .contains(active.getId())
+                .doesNotContain(deleted.getId());
     }
 }

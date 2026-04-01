@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getEvents } from '../services/api';
+import { displayEventStatus, canCustomerReserve } from '../utils/eventStatus';
 
 export default function EventsList({ user }) {
   const [events, setEvents] = useState([]);
@@ -103,7 +104,10 @@ export default function EventsList({ user }) {
             {events.length === 0 ? (
               <li className="helper">No events found.</li>
             ) : (
-              events.map((ev) => (
+              events.map((ev) => {
+                const displayStatus = displayEventStatus(ev);
+                const canReserve = canCustomerReserve(ev);
+                return (
                 <li key={ev.id} className="event-item">
                   <div className="event-item-header">
                     <Link to={`/events/${ev.id}`}>{ev.name || 'Unnamed event'}</Link>
@@ -112,14 +116,15 @@ export default function EventsList({ user }) {
                   <div className="event-item-desc">Description: {ev.description || '—'}</div>
                   <div className="event-item-footer">
                     <span>{formatDate(ev.startDateTime)}</span>
-                    <span>Status: {ev.status === 'PASSED' ? 'PASSED' : (ev.ticketRemaining != null && String(ev.ticketRemaining).trim() === '0') ? 'FILLED' : (ev.status || '—')}</span>
+                    <span>Status: {displayStatus}</span>
                     <span>Tickets: {ev.ticketRemaining ?? '—'}</span>
-                    {user && user.role !== 'admin' && user.role !== 'instructor' && ev.status !== 'PASSED' && ev.status !== 'FILLED' && (
+                    {user && user.role !== 'admin' && user.role !== 'instructor' && canReserve && (
                       <Link to={`/events/${ev.id}/reserve`} className="btn btn-primary btn-sm">Reserve</Link>
                     )}
                   </div>
                 </li>
-              ))
+                );
+              })
             )}
           </ul>
         )}

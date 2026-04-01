@@ -46,3 +46,25 @@ test('customer sees Reserve only for non-PASSED non-FILLED events', async () => 
   expect(reserveLinks).toHaveLength(1);
   expect(reserveLinks[0]).toHaveAttribute('href', '/events/2/reserve');
 });
+
+test('customer does not see Reserve for DELETED event', async () => {
+  getEvents.mockResolvedValue([
+    {
+      id: 1,
+      name: 'Cancelled',
+      category: 'music',
+      location: 'A',
+      description: 'd',
+      startDateTime: '2030-06-01T12:00:00.000Z',
+      status: 'DELETED',
+      ticketRemaining: '10',
+    },
+  ]);
+  render(
+    <MemoryRouter>
+      <EventsList user={{ id: 10, role: 'customer' }} />
+    </MemoryRouter>
+  );
+  expect(await screen.findByText('Cancelled')).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: /^Reserve$/i })).not.toBeInTheDocument();
+});

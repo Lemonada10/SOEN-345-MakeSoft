@@ -20,7 +20,7 @@ export function wakeBackend() {
   fetchWithRetry(`${API_BASE}/events`, {}, 0).catch(() => {});
 }
 
-/** @param {{ date?: string, location?: string, category?: string, status?: string }} params */
+/** @param {{ date?: string, location?: string, category?: string, status?: string, includeDeleted?: boolean }} params */
 export async function getEvents(params = {}) {
   const sp = new URLSearchParams();
   if (params.date) {
@@ -31,6 +31,7 @@ export async function getEvents(params = {}) {
   if (params.location) sp.set('location', params.location);
   if (params.category) sp.set('category', params.category);
   if (params.status) sp.set('status', params.status);
+  if (params.includeDeleted) sp.set('includeDeleted', 'true');
   const qs = sp.toString();
   const url = `${API_BASE}/events${qs ? '?' + qs : ''}`;
   const res = await fetchWithRetry(url);
