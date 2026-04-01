@@ -14,3 +14,7 @@ Course deliverables—**architecture, UML, requirements, testing strategy, metho
 - npm install
 - npm install lottie-react (optional - try run without it - I removed the animation)
 - npm start
+
+# Deployment
+- Vercel (frontend/ auto updates)
+- Render (backend/ need to redeploy after each backend change/commit)
