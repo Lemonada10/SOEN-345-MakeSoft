@@ -1,15 +1,14 @@
 package com.makesoft.project.controller;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -82,5 +81,57 @@ class UserControllerTest {
                 .content(body))
                 .andExpect(status().isConflict())
                 .andExpect(content().string("user with that email already exists"));
+    }
+
+    @Test
+    void register_rejectsWhenPhoneAlreadyExists() throws Exception {
+        String phone = "514" + System.nanoTime();
+        String email1 = "ph1" + System.nanoTime() + "@example.com";
+        String email2 = "ph2" + System.nanoTime() + "@example.com";
+
+        mockMvc.perform(post("/api/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"P1\",\"email\":\"" + email1 + "\",\"phoneNumber\":\"" + phone + "\",\"password\":\"mypass\",\"role\":\"customer\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"P2\",\"email\":\"" + email2 + "\",\"phoneNumber\":\"" + phone + "\",\"password\":\"mypass\",\"role\":\"customer\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(content().string("user with that phone number already exists"));
+    }
+
+    @Test
+    void register_rejectsWhenEmailMissing() throws Exception {
+        mockMvc.perform(post("/api/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"NoEmail\",\"password\":\"mypass\",\"role\":\"customer\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("email required"));
+    }
+
+    @Test
+    void login_acceptsPhoneIdentifier() throws Exception {
+        String phone = "438" + System.nanoTime();
+        String email = "phone-login" + System.nanoTime() + "@example.com";
+        mockMvc.perform(post("/api/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Phone Login\",\"email\":\"" + email + "\",\"phoneNumber\":\"" + phone + "\",\"password\":\"mypass\",\"role\":\"customer\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"identifier\":\"" + phone + "\",\"password\":\"mypass\"}"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"email\":\"" + email + "\",\"role\":\"customer\"}"));
+    }
+
+    @Test
+    void login_rejectsWhenPasswordMissing() throws Exception {
+        mockMvc.perform(post("/api/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"identifier\":\"someone@example.com\"}"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Invalid email or password"));
     }
 }

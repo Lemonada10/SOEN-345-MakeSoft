@@ -1,9 +1,8 @@
 package com.makesoft.project.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Date;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -110,5 +109,76 @@ class EventServiceTest {
         assertThat(eventService.viewEvents(false).stream().map(Event::getId))
                 .contains(active.getId())
                 .doesNotContain(deleted.getId());
+    }
+
+    @Test
+    void filterByLocation_returnsOnlyMatchingNonDeletedByDefault() {
+        Event match = new Event("M1", "d", "Montreal", daysFromNow(4), "AVAILABLE", "5", "music");
+        eventRepository.save(match);
+        Event deleted = new Event("M2", "d", "Montreal", daysFromNow(4), "DELETED", "5", "music");
+        eventRepository.save(deleted);
+        Event other = new Event("T", "d", "Toronto", daysFromNow(4), "AVAILABLE", "5", "music");
+        eventRepository.save(other);
+
+        assertThat(eventService.filterByLocation("Montreal", false).stream().map(Event::getId))
+                .contains(match.getId())
+                .doesNotContain(deleted.getId(), other.getId());
+    }
+
+    @Test
+    void filterByLocation_includeDeletedTrue_keepsDeleted() {
+        Event deleted = new Event("Gone", "d", "Ottawa", daysFromNow(4), "DELETED", "5", "music");
+        eventRepository.save(deleted);
+
+        assertThat(eventService.filterByLocation("Ottawa", true).stream().map(Event::getId))
+                .contains(deleted.getId());
+    }
+
+    @Test
+    void filterByCategory_returnsOnlyMatchingNonDeletedByDefault() {
+        Event match = new Event("C1", "d", "loc", daysFromNow(4), "AVAILABLE", "5", "sports");
+        eventRepository.save(match);
+        Event deleted = new Event("C2", "d", "loc", daysFromNow(4), "DELETED", "5", "sports");
+        eventRepository.save(deleted);
+        Event other = new Event("C3", "d", "loc", daysFromNow(4), "AVAILABLE", "5", "music");
+        eventRepository.save(other);
+
+        assertThat(eventService.filterByCategory("sports", false).stream().map(Event::getId))
+                .contains(match.getId())
+                .doesNotContain(deleted.getId(), other.getId());
+    }
+
+    @Test
+    void filterByDate_returnsOnlyMatchingNonDeletedByDefault() {
+        Date date = daysFromNow(9);
+        Event match = new Event("D1", "d", "loc", date, "AVAILABLE", "5", "music");
+        eventRepository.save(match);
+        Event deleted = new Event("D2", "d", "loc", date, "DELETED", "5", "music");
+        eventRepository.save(deleted);
+        Event other = new Event("D3", "d", "loc", daysFromNow(10), "AVAILABLE", "5", "music");
+        eventRepository.save(other);
+
+        assertThat(eventService.filterByDate(date, false).stream().map(Event::getId))
+                .contains(match.getId())
+                .doesNotContain(deleted.getId(), other.getId());
+    }
+
+    @Test
+    void viewAvailableEvents_returnsOnlyAvailableNonDeleted() {
+        Event available = new Event("A", "d", "loc", daysFromNow(5), "AVAILABLE", "5", "music");
+        eventRepository.save(available);
+        Event deleted = new Event("Del", "d", "loc", daysFromNow(5), "DELETED", "5", "music");
+        eventRepository.save(deleted);
+        Event filled = new Event("Fill", "d", "loc", daysFromNow(5), "FILLED", "0", "music");
+        eventRepository.save(filled);
+
+        assertThat(eventService.viewAvailableEvents(false).stream().map(Event::getId))
+                .contains(available.getId())
+                .doesNotContain(deleted.getId(), filled.getId());
+    }
+
+    @Test
+    void getPublicEventById_returnsEmptyWhenMissing() {
+        assertThat(eventService.getPublicEventById(987654321L)).isEmpty();
     }
 }
